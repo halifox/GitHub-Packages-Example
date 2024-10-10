@@ -1,3 +1,7 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+
 pluginManagement {
     repositories {
         google {
@@ -11,11 +15,21 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+val prop = Properties().apply {
+    load(FileInputStream(File(rootProject.projectDir, "local.properties")))
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven {
+            setUrl(prop.getProperty("GITHUB_URL"))
+            credentials {
+                username = prop.getProperty("GITHUB_USERNAME")
+                password = prop.getProperty("GITHUB_TOKEN")
+            }
+        }
     }
 }
 

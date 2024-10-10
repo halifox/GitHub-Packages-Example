@@ -1,6 +1,10 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    id("maven-publish")
 }
 
 android {
@@ -37,4 +41,33 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+val prop = Properties().apply {
+    load(FileInputStream(File(rootProject.rootDir, "local.properties")))
+}
+afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                name = "GitHub-Packages-Example"
+                setUrl(prop.getProperty("GITHUB_URL"))
+                credentials {
+                    username = prop.getProperty("GITHUB_USERNAME")
+                    password = prop.getProperty("GITHUB_TOKEN")
+                }
+            }
+        }
+        publications {
+            create<MavenPublication>("maven") {
+                from(components["release"])
+                groupId = "com.example"
+                artifactId = "library"
+                version = "1.0.0"
+            }
+        }
+    }
 }
